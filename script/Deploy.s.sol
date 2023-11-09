@@ -2,15 +2,16 @@
 pragma solidity ^0.8.19;
 
 import { Script, console2 } from "forge-std/Script.sol";
-import { Module } from "../src/Module.sol";
+import { GitcoinPassportEligibility } from "../src/GitcoinPassportEligibility.sol";
+import { HatsModuleFactory } from "hats-module/HatsModuleFactory.sol";
 
-contract Deploy is Script {
-  Module public implementation;
+contract DeployImplementation is Script {
+  GitcoinPassportEligibility public implementation;
   bytes32 public SALT = bytes32(abi.encode("change this to the value of your choice"));
 
   // default values
   bool internal _verbose = true;
-  string internal _version = "0.0.1"; // increment this with each new deployment
+  string internal _version = "0.1.0"; // increment this with each new deployment
 
   /// @dev Override default values, if desired
   function prepare(bool verbose, string memory version) public {
@@ -26,7 +27,7 @@ contract Deploy is Script {
 
   function _log(string memory prefix) internal view {
     if (_verbose) {
-      console2.log(string.concat(prefix, "Module:"), address(implementation));
+      console2.log(string.concat(prefix, "GitcoinPassportEligibility:"), address(implementation));
     }
   }
 
@@ -42,29 +43,11 @@ contract Deploy is Script {
      *       never differs regardless of where its being compiled
      *    2. The provided salt, `SALT`
      */
-    implementation = new Module{ salt: SALT}(_version /* insert constructor args here */);
+    implementation = new GitcoinPassportEligibility{ salt: SALT}(_version /* insert constructor args here */);
 
     vm.stopBroadcast();
 
     _log("");
-  }
-}
-
-/// @dev Deploy pre-compiled ir-optimized bytecode to a non-deterministic address
-contract DeployPrecompiled is Deploy {
-  /// @dev Update SALT and default values in Deploy contract
-
-  function run() public override {
-    vm.startBroadcast(deployer());
-
-    bytes memory args = abi.encode( /* insert constructor args here */ );
-
-    /// @dev Load and deploy pre-compiled ir-optimized bytecode.
-    implementation = Module(deployCode("optimized-out/Module.sol/Module.json", args));
-
-    vm.stopBroadcast();
-
-    _log("Precompiled ");
   }
 }
 
@@ -82,12 +65,57 @@ forge verify-contract --chain-id 1 --num-of-optimizations 1000000 --watch --cons
  --compiler-version v0.8.19 {deploymentAddress} \
  src/{Counter}.sol:{Counter} --etherscan-api-key $ETHERSCAN_KEY
 
-## D. To verify ir-optimized contracts on etherscan...
-  1. Run (C) with the following additional flag: `--show-standard-json-input > etherscan.json`
-  2. Patch `etherscan.json`: `"optimizer":{"enabled":true,"runs":100}` =>
-`"optimizer":{"enabled":true,"runs":100},"viaIR":true`
-  3. Upload the patched `etherscan.json` to etherscan manually
-
-  See this github issue for more: https://github.com/foundry-rs/foundry/issues/3507#issuecomment-1465382107
-
 */
+
+contract DeployInstance is Script {
+  HatsModuleFactory public constant FACTORY = HatsModuleFactory(0xfE661c01891172046feE16D3a57c3Cf456729efA);
+  address public implementation;
+  address public instance;
+  bytes32 public SALT = bytes32(abi.encode(0x4a75)); // ~ H(4) A(a) T(7) S(5)
+
+  address public eas;
+  address public gitcoinResolver;
+  bytes32 public scoreSchema;
+  uint256 public scoreCriterion;
+
+  uint256 public targetHat;
+
+  /// @dev Override default values, if desired
+  function prepare(
+    address _implementation,
+    address _eas,
+    address _gitcoinResolver,
+    bytes32 _scoreSchema,
+    uint256 _scoreCriterion
+  ) public {
+    implementation = _implementation;
+    eas = _eas;
+    gitcoinResolver = _gitcoinResolver;
+    scoreSchema = _scoreSchema;
+    scoreCriterion = _scoreCriterion;
+  }
+
+  /// @dev Set up the deployer via their private key from the environment
+  function deployer() public returns (address) {
+    uint256 privKey = vm.envUint("PRIVATE_KEY");
+    return vm.rememberKey(privKey);
+  }
+
+  /// @dev Deploy the contract to a deterministic address via forge's create2 deployer factory.
+  function run() public virtual returns (address) {
+    vm.startBroadcast(deployer());
+
+    instance = FACTORY.createHatsModule(
+      implementation,
+      targetHat, // hatId
+      abi.encodePacked(eas, gitcoinResolver, scoreSchema, scoreCriterion), // otherImmutableArgs
+      abi.encode() // initArgs
+    );
+
+    vm.stopBroadcast();
+
+    console2.log("Deployed instance:", instance);
+
+    return instance;
+  }
+}
