@@ -73,21 +73,26 @@ contract DeployInstance is Script {
   address public instance;
   bytes32 public SALT = bytes32(abi.encode(0x4a75)); // ~ H(4) A(a) T(7) S(5)
 
+  // default values
+  bool internal _verbose = true;
+  uint256 public targetHat;
   address public eas;
   address public gitcoinResolver;
   bytes32 public scoreSchema;
   uint256 public scoreCriterion;
 
-  uint256 public targetHat;
-
   /// @dev Override default values, if desired
   function prepare(
+    bool verbose,
+    uint256 _targetHat,
     address _implementation,
     address _eas,
     address _gitcoinResolver,
     bytes32 _scoreSchema,
     uint256 _scoreCriterion
   ) public {
+    _verbose = verbose;
+    targetHat = _targetHat;
     implementation = _implementation;
     eas = _eas;
     gitcoinResolver = _gitcoinResolver;
@@ -99,6 +104,12 @@ contract DeployInstance is Script {
   function deployer() public returns (address) {
     uint256 privKey = vm.envUint("PRIVATE_KEY");
     return vm.rememberKey(privKey);
+  }
+
+  function _log(string memory prefix) internal view {
+    if (_verbose) {
+      console2.log(string.concat(prefix, "Deployed instance:"), instance);
+    }
   }
 
   /// @dev Deploy the contract to a deterministic address via forge's create2 deployer factory.
@@ -114,7 +125,7 @@ contract DeployInstance is Script {
 
     vm.stopBroadcast();
 
-    console2.log("Deployed instance:", instance);
+    _log("");
 
     return instance;
   }

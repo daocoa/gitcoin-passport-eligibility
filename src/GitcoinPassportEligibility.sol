@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-// import { console2 } from "forge-std/Test.sol"; // remove before deploy
+import { console2 } from "forge-std/Test.sol"; // comment out before deploy
 import { HatsEligibilityModule, HatsModule, IHatsEligibility } from "hats-module/HatsEligibilityModule.sol";
-import { IGitcoinResolver } from "eas-proxy/contracts/IGitcoinResolver.sol";
+// import { IGitcoinResolver } from "eas-proxy/contracts/IGitcoinResolver.sol";
 import { Attestation, IEAS } from "eas-contracts/contracts/IEAS.sol";
+
+interface GitcoinResolverLike {
+  function userAttestations(address user, bytes32 schema) external view returns (bytes32);
+}
 
 contract GitcoinPassportEligibility is HatsEligibilityModule {
   /*//////////////////////////////////////////////////////////////
@@ -42,8 +46,8 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
   }
 
   /// @notice The Gitcoin Resolver contract
-  function GITCOIN_RESOLVER() public pure returns (IGitcoinResolver) {
-    return IGitcoinResolver(_getArgAddress(92));
+  function GITCOIN_RESOLVER() public pure returns (GitcoinResolverLike) {
+    return GitcoinResolverLike(_getArgAddress(92));
   }
 
   /// @notice The schema for Gitcoin Passport Score attestations
@@ -99,14 +103,14 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
 
   function _getScore(address _wearer) internal view returns (uint256 score) {
     // Get the attestation UID from the user's attestations
-    bytes32 attestationUID = GITCOIN_RESOLVER().getUserAttestation(_wearer, SCORE_SCHEMA());
+
+    bytes32 attestationUID = GITCOIN_RESOLVER().userAttestations(_wearer, SCORE_SCHEMA());
 
     // Check for existence
     if (attestationUID == 0) return 0;
 
     // Get the attestation from the user's attestation UID
     Attestation memory attestation = EAS().getAttestation(attestationUID);
-
     // Check for revocation time
     if (attestation.revocationTime > 0) return 0;
 
@@ -115,7 +119,9 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
       return 0;
     }
 
+    // uint8 decimals; // TODO handle decimals
+
     // Decode the attestion output to get the score
-    (score,,) = abi.decode(attestation.data, (uint256, uint256, uint256));
+    (score,,) = abi.decode(attestation.data, (uint256, uint256, uint8));
   }
 }
