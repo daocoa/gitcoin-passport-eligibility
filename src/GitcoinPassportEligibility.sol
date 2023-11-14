@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { console2 } from "forge-std/Test.sol"; // comment out before deploy
+// import { console2 } from "forge-std/Test.sol"; // comment out before deploy
 import { HatsEligibilityModule, HatsModule, IHatsEligibility } from "hats-module/HatsEligibilityModule.sol";
 // import { IGitcoinResolver } from "eas-proxy/contracts/IGitcoinResolver.sol";
 import { Attestation, IEAS } from "eas-contracts/contracts/IEAS.sol";
@@ -84,7 +84,11 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
     override
     returns (bool eligible, bool standing)
   {
-    eligible = _getScore(_wearer) >= SCORE_CRITERION();
+    // get score and decimals from the _wearer's attestation
+    (uint256 score, uint8 decimals) = _getScoreAndDecimals(_wearer);
+
+    // eligible if the score is greater than or equal to the score criterion (adjusted for decimals)
+    eligible = score >= SCORE_CRITERION() * (10 ** decimals);
 
     standing = true;
   }
@@ -93,35 +97,33 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
                           VIEW FUNCTIONS
   //////////////////////////////////////////////////////////////*/
 
-  function getScore(address _wearer) external view returns (uint256 score) {
-    return _getScore(_wearer);
+  function getScoreAndDecimals(address _wearer) external view returns (uint256 score, uint8 decimals) {
+    return _getScoreAndDecimals(_wearer);
   }
 
   /*//////////////////////////////////////////////////////////////
                         INTERNAL FUNCTIONS
   //////////////////////////////////////////////////////////////*/
 
-  function _getScore(address _wearer) internal view returns (uint256 score) {
+  function _getScoreAndDecimals(address _wearer) internal view returns (uint256 score, uint8 decimals) {
     // Get the attestation UID from the user's attestations
 
     bytes32 attestationUID = GITCOIN_RESOLVER().userAttestations(_wearer, SCORE_SCHEMA());
 
     // Check for existence
-    if (attestationUID == 0) return 0;
+    if (attestationUID == 0) return (0, 0);
 
     // Get the attestation from the user's attestation UID
     Attestation memory attestation = EAS().getAttestation(attestationUID);
     // Check for revocation time
-    if (attestation.revocationTime > 0) return 0;
+    if (attestation.revocationTime > 0) return (0, 0);
 
     // Check for expiration time
     if (attestation.expirationTime > 0 && attestation.expirationTime <= block.timestamp) {
-      return 0;
+      return (0, 0);
     }
 
-    // uint8 decimals; // TODO handle decimals
-
-    // Decode the attestion output to get the score
-    (score,,) = abi.decode(attestation.data, (uint256, uint256, uint8));
+    // Decode the attestion output to get the score and decimals
+    (score,, decimals) = abi.decode(attestation.data, (uint256, uint256, uint8));
   }
 }
