@@ -90,6 +90,7 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
     // eligible if the score is greater than or equal to the score criterion (adjusted for decimals)
     eligible = score >= SCORE_CRITERION() * (10 ** decimals);
 
+    // this module always returns true for standing
     standing = true;
   }
 
@@ -97,6 +98,16 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
                           VIEW FUNCTIONS
   //////////////////////////////////////////////////////////////*/
 
+  /**
+   * @notice Gets the Gitcoin Passport score and decimals for a given user.
+   * @dev Returns with empty values (0, 0) if the user has no score, ie if:
+   * - A score attestation does not exist for the user
+   * - The user's score attestation has been revoked
+   * - The user's score attestation has expired
+   * @param _wearer The address of the user to get the score for
+   * @return score The user's Gitcoin Passport score
+   * @return decimals The number of decimals for the user's Gitcoin Passport score
+   */
   function getScoreAndDecimals(address _wearer) external view returns (uint256 score, uint8 decimals) {
     return _getScoreAndDecimals(_wearer);
   }
@@ -105,9 +116,18 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
                         INTERNAL FUNCTIONS
   //////////////////////////////////////////////////////////////*/
 
+  /**
+   * @dev Gets the Gitcoin Passport score and decimals for a given user.
+   *  Returns with empty values (0, 0) if the user has no score, ie if:
+   * - A score attestation does not exist for the user
+   * - The user's score attestation has been revoked
+   * - The user's score attestation has expired
+   * @param _wearer The address of the user to get the score for
+   * @return score The user's Gitcoin Passport score
+   * @return decimals The number of decimals for the user's Gitcoin Passport score
+   */
   function _getScoreAndDecimals(address _wearer) internal view returns (uint256 score, uint8 decimals) {
     // Get the attestation UID from the user's attestations
-
     bytes32 attestationUID = GITCOIN_RESOLVER().userAttestations(_wearer, SCORE_SCHEMA());
 
     // Check for existence
