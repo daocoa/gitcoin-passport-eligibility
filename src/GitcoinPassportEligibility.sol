@@ -2,13 +2,8 @@
 pragma solidity ^0.8.19;
 
 // import { console2 } from "forge-std/Test.sol"; // comment out before deploy
-import { HatsEligibilityModule, HatsModule, IHatsEligibility } from "hats-module/HatsEligibilityModule.sol";
-// import { IGitcoinResolver } from "eas-proxy/contracts/IGitcoinResolver.sol";
-import { Attestation, IEAS } from "eas-contracts/contracts/IEAS.sol";
-
-interface GitcoinResolverLike {
-  function userAttestations(address user, bytes32 schema) external view returns (bytes32);
-}
+import { HatsEligibilityModule, HatsModule, IHatsEligibility } from "../lib/hats-module/src/HatsEligibilityModule.sol";
+import { IGitcoinPassportDecoder } from "../lib/eas-proxy/contracts/IGitcoinPassportDecoder.sol";
 
 contract GitcoinPassportEligibility is HatsEligibilityModule {
   /*//////////////////////////////////////////////////////////////
@@ -25,39 +20,27 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
    *
    * For more, see here: https://github.com/Saw-mon-and-Natalie/clones-with-immutable-args
    *
-   * -----------------------------------------------------------------------+
-   * CLONE IMMUTABLE "STORAGE"                                              |
-   * -----------------------------------------------------------------------|
-   * Offset  | Constant          | Type            | Length | Source        |
-   * -----------------------------------------------------------------------|
-   * 0       | IMPLEMENTATION    | address         | 20     | HatsModule    |
-   * 20      | HATS              | address         | 20     | HatsModule    |
-   * 40      | hatId             | uint256         | 32     | HatsModule    |
-   * 72      | EAS               | IEAS            | 20     | this          |
-   * 92      | GITCOIN_RESOLVER  | IGitcoinResolver| 20     | this          |
-   * 112     | SCORE_SCHEMA      | bytes32         | 32     | this          |
-   * 144     | SCORE_CRITERION   | uint256         | 32     | this          |
-   * -----------------------------------------------------------------------+
+   * ------------------------------------------------------------------------------+
+   * CLONE IMMUTABLE "STORAGE"                                                     |
+   * ------------------------------------------------------------------------------|
+   * Offset  | Constant                 | Type            | Length | Source        |
+   * ------------------------------------------------------------------------------|
+   * 0       | IMPLEMENTATION           | address         | 20     | HatsModule    |
+   * 20      | HATS                     | address         | 20     | HatsModule    |
+   * 40      | hatId                    | uint256         | 32     | HatsModule    |
+   * 72      | GITCOIN_PASSPORT_DECODER | address         | 20     | this          |
+   * 92      | SCORE_CRITERION          | uint256         | 32     | this          |
+   * ------------------------------------------------------------------------------+
    */
 
-  /// @notice The global EAS contract
-  function EAS() public pure returns (IEAS) {
-    return IEAS(_getArgAddress(72));
-  }
-
   /// @notice The Gitcoin Resolver contract
-  function GITCOIN_RESOLVER() public pure returns (GitcoinResolverLike) {
-    return GitcoinResolverLike(_getArgAddress(92));
+  function GITCOIN_PASSPORT_DECODER() public pure returns (IGitcoinPassportDecoder) {
+    return IGitcoinPassportDecoder(_getArgAddress(72));
   }
 
-  /// @notice The schema for Gitcoin Passport Score attestations
-  function SCORE_SCHEMA() public pure returns (bytes32) {
-    return _getArgBytes32(112);
-  }
-
-  /// @notice The minimum Gitcoin Passport score required to be eligible for a hat
+  /// @notice The minimum Gitcoin Passport score required to be eligible for a hat, with 4 decimal places
   function SCORE_CRITERION() public pure returns (uint256) {
-    return _getArgUint256(144);
+    return _getArgUint256(92) * 10 ** 4;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -84,11 +67,8 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
     override
     returns (bool eligible, bool standing)
   {
-    // get score and decimals from the _wearer's attestation
-    (uint256 score, uint8 decimals) = _getScoreAndDecimals(_wearer);
-
-    // eligible if the score is greater than or equal to the score criterion (adjusted for decimals)
-    eligible = score >= SCORE_CRITERION() * (10 ** decimals);
+    // eligible if the wearer has a score greater than or equal to the score criterion
+    eligible = isHuman(_wearer);
 
     // this module always returns true for standing
     standing = true;
@@ -99,51 +79,33 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
   //////////////////////////////////////////////////////////////*/
 
   /**
-   * @notice Gets the Gitcoin Passport score and decimals for a given user.
-   * @dev Returns with empty values (0, 0) if the user has no score, ie if:
+   * @notice Assesses whether a user is human based on their Gitcoin Passport score
+   * @dev Returns
    * - A score attestation does not exist for the user
    * - The user's score attestation has been revoked
    * - The user's score attestation has expired
    * @param _wearer The address of the user to get the score for
-   * @return score The user's Gitcoin Passport score
-   * @return decimals The number of decimals for the user's Gitcoin Passport score
+   * @return Whether the user is human in compliance with the score criterion
    */
-  function getScoreAndDecimals(address _wearer) external view returns (uint256 score, uint8 decimals) {
-    return _getScoreAndDecimals(_wearer);
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                        INTERNAL FUNCTIONS
-  //////////////////////////////////////////////////////////////*/
-
-  /**
-   * @dev Gets the Gitcoin Passport score and decimals for a given user.
-   *  Returns with empty values (0, 0) if the user has no score, ie if:
-   * - A score attestation does not exist for the user
-   * - The user's score attestation has been revoked
-   * - The user's score attestation has expired
-   * @param _wearer The address of the user to get the score for
-   * @return score The user's Gitcoin Passport score
-   * @return decimals The number of decimals for the user's Gitcoin Passport score
-   */
-  function _getScoreAndDecimals(address _wearer) internal view returns (uint256 score, uint8 decimals) {
-    // Get the attestation UID from the user's attestations
-    bytes32 attestationUID = GITCOIN_RESOLVER().userAttestations(_wearer, SCORE_SCHEMA());
-
-    // Check for existence
-    if (attestationUID == 0) return (0, 0);
-
-    // Get the attestation from the user's attestation UID
-    Attestation memory attestation = EAS().getAttestation(attestationUID);
-    // Check for revocation time
-    if (attestation.revocationTime > 0) return (0, 0);
-
-    // Check for expiration time
-    if (attestation.expirationTime > 0 && attestation.expirationTime <= block.timestamp) {
-      return (0, 0);
+  function isHuman(address _wearer) public view returns (bool) {
+    // we use a try/catch to handle cases where the user...
+    //    - doesn't have a score attestation,
+    //    - the attestation has been revoked, or
+    //    - the attestation has expired
+    if (SCORE_CRITERION() == 0) {
+      // if our score criterion is 0, we default to Gitcoin Passport's standard criterion
+      try GITCOIN_PASSPORT_DECODER().isHuman(_wearer) returns (bool result) {
+        return result;
+      } catch {
+        return false;
+      }
+    } else {
+      // otherwise, we use our score criterion
+      try GITCOIN_PASSPORT_DECODER().getScore(_wearer) returns (uint256 score) {
+        return score >= SCORE_CRITERION();
+      } catch {
+        return false;
+      }
     }
-
-    // Decode the attestion output to get the score and decimals
-    (score,, decimals) = abi.decode(attestation.data, (uint256, uint256, uint8));
   }
 }

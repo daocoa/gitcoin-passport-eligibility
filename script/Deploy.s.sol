@@ -43,7 +43,7 @@ contract DeployImplementation is Script {
      *       never differs regardless of where its being compiled
      *    2. The provided salt, `SALT`
      */
-    implementation = new GitcoinPassportEligibility{ salt: SALT}(_version /* insert constructor args here */);
+    implementation = new GitcoinPassportEligibility{ salt: SALT }(_version /* insert constructor args here */ );
 
     vm.stopBroadcast();
 
@@ -76,27 +76,21 @@ contract DeployInstance is Script {
   // default values
   bool internal _verbose = true;
   uint256 public targetHat;
-  address public eas;
-  address public gitcoinResolver;
-  bytes32 public scoreSchema;
   uint256 public scoreCriterion;
+  address public gitcoinPassportDecoder;
 
   /// @dev Override default values, if desired
   function prepare(
     bool verbose,
     uint256 _targetHat,
     address _implementation,
-    address _eas,
-    address _gitcoinResolver,
-    bytes32 _scoreSchema,
+    address _gitcoinPassportDecoder,
     uint256 _scoreCriterion
   ) public {
     _verbose = verbose;
     targetHat = _targetHat;
     implementation = _implementation;
-    eas = _eas;
-    gitcoinResolver = _gitcoinResolver;
-    scoreSchema = _scoreSchema;
+    gitcoinPassportDecoder = _gitcoinPassportDecoder;
     scoreCriterion = _scoreCriterion;
   }
 
@@ -119,7 +113,7 @@ contract DeployInstance is Script {
     instance = FACTORY.createHatsModule(
       implementation,
       targetHat, // hatId
-      abi.encodePacked(eas, gitcoinResolver, scoreSchema, scoreCriterion), // otherImmutableArgs
+      abi.encodePacked(gitcoinPassportDecoder, scoreCriterion), // otherImmutableArgs
       abi.encode() // initArgs
     );
 
