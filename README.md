@@ -28,7 +28,7 @@ This repo uses Foundry for development and testing. To get started:
 4. To compile the contracts, run `forge build`
 5. To test, run `forge test`
 
-Forked from [Hats Mudule Template](https://github.com/Hats-Protocol/hats-module-template).
+Forked from the [Hats Module Template](https://github.com/Hats-Protocol/hats-module-template).
 
 ## License
 
