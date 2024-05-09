@@ -34,7 +34,7 @@ A GitcoinPassportEligiblity requires several parameters to be set at deployment,
 - `gitcoinPassportDecoder`: The smart contract instance of a Decoder that creates a bit map of stamp providers, which allows us to score Passports fully onchain.
 - `scoreCriterion`: The threshold used to consider if an address belongs to a human. If set to 0, then the module will use Gitcoin Passport's standard criterion for the threshold. If set to a value other than 0, then the module will use the assigned value for the threshold.
 
-## Development
+### Development
 
 This repo uses Foundry for development and testing. To get started:
 
@@ -44,9 +44,7 @@ This repo uses Foundry for development and testing. To get started:
 4. To compile the contracts, run `forge build`
 5. To test, run `forge test`
 
-
-
-### IR-Optimized Builds
+## IR-Optimized Builds
 
 This repo also supports contracts compiled via IR. Since compiling all contracts via IR would slow down testing workflows, we only want to do this for our target contract(s), not anything in this `test` or `script` stack. We accomplish this by pre-compiled the target contract(s) and then loading the pre-compiled artifacts in the test suite.
 
@@ -55,10 +53,6 @@ First, we compile the target contract(s) via IR by running`FOUNDRY_PROFILE=optim
 Next, ensure that tests are using the `DeployOptimized` script, and run `forge test` as normal.
 
 See the wonderful [Seaport repo](https://github.com/ProjectOpenSea/seaport/blob/main/README.md#foundry-tests) for more details and options for this approach.
-
-### notes
-
-Forked from the [Hats Module Template](https://github.com/Hats-Protocol/hats-module-template).
 
 ## Steps To Deploy
 
@@ -80,6 +74,11 @@ forge verify-contract --chain-id 1 --num-of-optimizations 1000000 --watch --cons
  --compiler-version v0.8.19 {deploymentAddress} \
  src/{Counter}.sol:{Counter} --etherscan-api-key $ETHERSCAN_KEY
 ```
+
+
+### notes
+
+Forked from the [Hats Module Template](https://github.com/Hats-Protocol/hats-module-template).
 
 ## License
 
