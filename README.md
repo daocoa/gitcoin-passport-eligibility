@@ -34,7 +34,7 @@ A GitcoinPassportEligiblity requires several parameters to be set at deployment,
 - `gitcoinPassportDecoder`: The smart contract instance of a Decoder that creates a bit map of stamp providers, which allows us to score Passports fully onchain.
 - `scoreCriterion`: The threshold used to consider if an address belongs to a human. If set to 0, then the module will use Gitcoin Passport's standard criterion for the threshold. If set to a value other than 0, then the module will use the assigned value for the threshold.
 
-### Development
+# Development
 
 This repo uses Foundry for development and testing. To get started:
 
@@ -76,10 +76,10 @@ forge verify-contract --chain-id 1 --num-of-optimizations 1000000 --watch --cons
 ```
 
 
-### notes
+# notes
 
 Forked from the [Hats Module Template](https://github.com/Hats-Protocol/hats-module-template).
 
-## License
+# License
 
 MIT
