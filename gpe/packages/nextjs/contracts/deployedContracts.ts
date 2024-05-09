@@ -4,6 +4,6 @@
  */
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
-const deployedContracts = {} as const;
+const deployedContracts = { 31337: {}, 11155111: {}, 11155420: {} } as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;

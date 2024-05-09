@@ -46,9 +46,25 @@ contract VerifyAll is Script {
             ),
             (string)
         );
-        if (keccak256(bytes(txType)) == keccak256(bytes("CREATE"))) {
+        if (keccak256(bytes(txType)) == keccak256(bytes("CREATE2"))) {
             _verifyContract(content);
         }
+    }
+
+    function bytes32ToString(bytes memory _bytes32)
+        public
+        pure
+        returns (string memory)
+    {
+        uint8 i = 0;
+        while (i < 32 && _bytes32[i] != 0) {
+            i++;
+        }
+        bytes memory bytesArray = new bytes(i);
+        for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
+            bytesArray[i] = _bytes32[i];
+        }
+        return string(bytesArray);
     }
 
     function _verifyContract(string memory content) internal {
@@ -78,6 +94,20 @@ contract VerifyAll is Script {
             deployedBytecode.length - compiledBytecode.length
         );
 
+        string[] memory arguments = abi.decode(
+            vm.parseJson(content, searchStr(currTransactionIdx, "arguments")),
+            (string[])
+        );
+
+        console.log(arguments[0]);
+
+        string memory res = bytes32ToString(constructorArgs);
+
+        console.log(string(abi.encodePacked(constructorArgs)));
+        console.log(res);
+
+        console.logBytes(constructorArgs);
+
         string[] memory inputs = new string[](9);
         inputs[0] = "forge";
         inputs[1] = "verify-contract";
@@ -86,7 +116,8 @@ contract VerifyAll is Script {
         inputs[4] = "--chain";
         inputs[5] = vm.toString(block.chainid);
         inputs[6] = "--constructor-args";
-        inputs[7] = vm.toString(constructorArgs);
+        inputs[7] =
+            "00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000005302e312e30000000000000000000000000000000000000000000000000000000";
         inputs[8] = "--watch";
 
         FfiResult memory f = tempVm(address(vm)).tryFfi(inputs);
