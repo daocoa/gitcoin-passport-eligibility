@@ -58,22 +58,17 @@ See the wonderful [Seaport repo](https://github.com/ProjectOpenSea/seaport/blob/
 
 #### A. Simulate the deployments locally
 
+`cd packages/foundry`
+
 `forge script script/DeployImplementation.s.sol -f mainnet`
+
 `forge script script/DeployInstance.s.sol -f mainnet`
 
 #### B. Deploy to real network and verify on etherscan
 
-`forge script script/DeployImplementation.s.sol mainnet --broadcast --verify`
-`forge script script/DeployInstance.s.sol mainnet --broadcast --verify`
+`yarn deploy --network ${network_name}`
 
-#### C. Fix verification issues (replace values in curly braces with the actual values)
-
-```
-forge verify-contract --chain-id 1 --num-of-optimizations 1000000 --watch --constructor-args $(cast abi-encode \
- "constructor({args})" "{arg1}" "{arg2}" "{argN}" ) \ 
- --compiler-version v0.8.19 {deploymentAddress} \
- src/{Counter}.sol:{Counter} --etherscan-api-key $ETHERSCAN_KEY
-```
+`yarn verify --network ${network_name}`
 
 ## notes
 
