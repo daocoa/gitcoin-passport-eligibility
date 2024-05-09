@@ -1,0 +1,87 @@
+
+{
+    "name": "<module's name (string)>",
+    "details": ["<first paragraph describing the module (string)>", "<second paragraph describing the module (string)>"],
+    "links": [
+    {
+      "label": "<link's name/description (string)>",
+      "link": "<link's URL (string)>"
+    }
+    ],
+    "parameters": [
+    {
+      "label": "<parameter's name/description (string)>",
+      "functionName": "<name of the function that will be used to retrieve the parameter from the module instance, should have no inputs and only one output (string)>",
+      "displayType": "<parameter's type of content, for display purpose (string)>"
+    },
+    ]
+    "type": {
+      "eligibility": "<whether the module is an eligiblity module (boolean)>",
+      "toggle": "<whether the module is a toggle module (boolean)>",
+      "hatter": "<whether the module is a hatter module (boolean)>"
+    },
+    "tags": [
+      {
+        "description": "Indicates that the module is now deprecated",
+        "label": "Deprecated",
+        "value": "deprecated"
+      }
+    ],
+    "implementationAddress": "<module's deployed implemenataion address (string)>",
+    "deployments": [
+      {
+        "chainId": "<chain ID (string)>",
+        "block": "<block number of the deployment transaction (string)>"
+      }
+    ],
+    "creationArgs": {
+      "useHatId": "<Whether the modules's hatId property (provide to the factory's creation function) should be set with the ID of the hat for which the module is deployed (boolean)>"
+      "immutable": [
+        {
+          "name": "<argument's name (string)>",
+          "description": "<short description (string)>",
+          "type": "<argument's solidity type, e.g. 'uint256' (string)>",
+          "example": "<example argument which will be used for automatic testing>",
+          "displayType": "<parameter's type of content, for display purpose>",
+          "optional": "<optional field, setting to 'true' indicates that this input is optional>"
+        }
+      ],
+      "mutable": [
+        {
+          "name": "<argument's name (string)>",
+          "description": "<short description (string)>",
+          "type": "<argument's solidity type, e.g. 'uint256' (string)>",
+          "example": "<example argument, will be used for automated deployment tests>",
+          "displayType": "<parameter's type of content, for display purpose>",
+          "optional": "<optional field, setting to 'true' indicates that this input is optional>"
+        }
+      ]
+    },
+    "customRoles": [
+       {
+          "id": "<role's ID (string)>",
+          "name": "<role's name (string)>",
+          "criteria": "<name of the module function that is used to retrieve the role's owner (string)>",
+          "hatAdminsFallback": "<optional field, if 'true' then indicates that the role has a fallback to Hat's admin roles in case the criteria function returns a zero value>"
+       }
+    ],
+    "writeFunctions": [
+       {
+          "roles": ["<ID of a role which has the authority to call this function (string)>"],
+          "functionName": "<the function's name in the contract (string)>",
+          "label": "<Human readable name for the function, for display purpose (string)>",
+          "description": "<function's description (string)>",
+          "primary": "<optional field, indicates that this is the role's primary function, for display purpose (boolean)>"
+          "args": [
+            {
+              "name": "<argument's human readable name, for display purpose (string)>",
+              "description": "<argument's description (string)>",
+              "type": "<argument's solidity type>",
+              "displayType": "<arguments's type of content, for display purpose>",
+              "optional": "<optional field, setting to 'true' indicates that this input is optional>"
+            }
+          ]
+       }
+    ]
+    "abi": "<module's contract ABI>"
+  }
