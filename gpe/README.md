@@ -1,79 +1,84 @@
-# 🏗 Scaffold-ETH 2
+# Gitcoin Passport Eligibility
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+Gitcoin Passport Eligibility is an eligibility module for [Hats Protocol](https://github.com/hats-protocol/hats-protocol). The module defines eligibility for wearers based on their Gitcoin Passport Score, and whether it passes a certain threshold.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+## Details
 
-⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
+GitcoinPassportEligiblity inherits from the [HatsEligibilityModule](https://github.com/Hats-Protocol/hats-module#hatseligibilitymodule) base contract from which it receives two major properties:
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+- It can be cheaply deployed via the minimal proxy factory[HatsModuleFactory](https://github.com/Hats-Protocol/hats-module#hatsmodulefactory)
+- It implements the interface [IHatsEligibility](https://github.com/Hats-Protocol/hats-protocol/blob/main/src/Interfaces/IHatsEligibility.sol)
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+This eligibility module relies on the parameters and logic internal to the [GitcoinPassportDecoder.sol](https://github.com/gitcoinco/eas-proxy/blob/056a246b8c68ccdf1d16d033f1c0cd1a807cea4a/contracts/GitcoinPassportDecoder.sol) contract to determine the eligibility of a target hat.
 
-## Requirements
+Specifically, this module reads the user's Gitcin Passport score, and yields a boolean value based on whether said score surpasses a specified threshold. This can be useful for if an onchain organization wants to restrict the eligibility of a target hat based on some minimum Gitcoin Passport score, as a proxy for unique personhood.
 
-Before you begin, you need to install the following tools:
+The eligibility of the target hat is dynamically determined by the status of the user's Gitcoin passport. For more information, see the [official Gitcoin Passport documentation](https://docs.passport.gitcoin.co/building-with-passport/passport-api/api-reference#refreshing-scores).
 
-- [Node (>= v18.17)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+Note that every time a hat with this module signs anything, this module will be called. This means that the passport score is realtime, but a hat with this module will pay more to sign a transaction than a hat without this module.
 
-## Quickstart
+<!-- This module is simple, and relies on the protocols it bridges for its efficacy. The only configuration outside of the default is the score criterion. If the score criterion is 0, we default to Gitcoin Passport's standard criterion. 
 
-To get started with Scaffold-ETH 2, follow the steps below:
+![image](https://github.com/daocoa/gitcoin-passport-eligibility/assets/3211305/e6753cc5-c819-412d-9687-9fc5a706e139)
 
-1. Install dependencies if it was skipped in CLI:
+![image](https://github.com/daocoa/gitcoin-passport-eligibility/assets/3211305/faf155da-424b-44d2-86ed-b62148b40af2)
+-->
+
+### Setup
+
+A GitcoinPassportEligiblity requires several parameters to be set at deployment, passed to the `HatsModuleFactory.createHatsModule()` function in various ways.
+
+#### Immutable values
+
+- `hatId`: The id of the hat to which this instance will be attached as an eligibility module, passed as itself
+- `gitcoinPassportDecoder`: The smart contract instance of a Decoder that creates a bit map of stamp providers, which allows us to score Passports fully onchain.
+- `scoreCriterion`: The threshold used to consider if an address belongs to a human. If set to 0, then the module will use Gitcoin Passport's standard criterion for the threshold. If set to a value other than 0, then the module will use the assigned value for the threshold.
+
+## Development
+
+This repo uses Foundry for development and testing. To get started:
+
+1. Fork the project
+2. Install [Foundry](https://book.getfoundry.sh/getting-started/installation)
+3. To install dependencies, run `forge install`
+4. To compile the contracts, run `forge build`
+5. To test, run `forge test`
+
+### IR-Optimized Builds
+
+This repo also supports contracts compiled via IR. Since compiling all contracts via IR would slow down testing workflows, we only want to do this for our target contract(s), not anything in this `test` or `script` stack. We accomplish this by pre-compiled the target contract(s) and then loading the pre-compiled artifacts in the test suite.
+
+First, we compile the target contract(s) via IR by running`FOUNDRY_PROFILE=optimized forge build` (ensuring that FOUNDRY_PROFILE is not in our .env file)
+
+Next, ensure that tests are using the `DeployOptimized` script, and run `forge test` as normal.
+
+See the wonderful [Seaport repo](https://github.com/ProjectOpenSea/seaport/blob/main/README.md#foundry-tests) for more details and options for this approach.
+
+### Steps To Deploy
+
+#### A. Simulate the deployments locally
+
+`forge script script/DeployImplementation.s.sol -f mainnet`
+`forge script script/DeployInstance.s.sol -f mainnet`
+
+#### B. Deploy to real network and verify on etherscan
+
+`forge script script/DeployImplementation.s.sol mainnet --broadcast --verify`
+`forge script script/DeployInstance.s.sol mainnet --broadcast --verify`
+
+#### C. Fix verification issues (replace values in curly braces with the actual values)
 
 ```
-cd my-dapp-example
-yarn install
+forge verify-contract --chain-id 1 --num-of-optimizations 1000000 --watch --constructor-args $(cast abi-encode \
+ "constructor({args})" "{arg1}" "{arg2}" "{argN}" ) \ 
+ --compiler-version v0.8.19 {deploymentAddress} \
+ src/{Counter}.sol:{Counter} --etherscan-api-key $ETHERSCAN_KEY
 ```
 
-2. Run a local network in the first terminal:
+## notes
 
-```
-yarn chain
-```
+Forked from the [Hats Module Template](https://github.com/Hats-Protocol/hats-module-template).
 
-This command starts a local Ethereum network using Foundry. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/foundry/foundry.toml`.
+## License
 
-3. On a second terminal, deploy the test contract:
-
-```
-yarn deploy
-```
-
-This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
-
-4. On a third terminal, start your NextJS app:
-
-```
-yarn start
-```
-
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
-
-Run smart contract test with `yarn foundry:test`
-
-- Edit your smart contract `YourContract.sol` in `packages/foundry/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/foundry/script`
-
-## Documentation
-
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+MIT
