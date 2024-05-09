@@ -59,6 +59,7 @@ goerli = "https://goerli.infura.io/v3/${INFURA_KEY}"
 local = "http://localhost:8545"
 mainnet = "https://mainnet.infura.io/v3/${INFURA_KEY}"
 optimism = "https://optimism-mainnet.infura.io/v3/${INFURA_KEY}"
+optimismTestnet = "https://optimism-sepolia.infura.io/v3/${INFURA_KEY}"
 polygon = "${POLYGON_RPC}"
 sepolia = "https://sepolia.infura.io/v3/${INFURA_KEY}"
 

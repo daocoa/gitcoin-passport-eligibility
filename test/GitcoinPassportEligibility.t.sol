@@ -14,7 +14,9 @@ import {
   RevocationRequest,
   RevocationRequestData
 } from "../lib/eas-contracts/contracts/IEAS.sol";
-import { DeployImplementation, DeployInstance } from "../script/Deploy.s.sol";
+import { DeployImplementation } from "../script/DeployImplementation.s.sol";
+import { DeployInstance } from "../script/DeployInstance.s.sol";
+
 import { IHats } from "hats-protocol/Interfaces/IHats.sol";
 
 contract ModuleTest is DeployImplementation, Test {
