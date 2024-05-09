@@ -15,6 +15,6 @@
 	url = https://github.com/gitcoinco/eas-proxy
 [submodule "packages/foundry/lib/hats-module"]
 	path = packages/foundry/lib/hats-module
-	url = https://github.com/hats-Protocol/hats-module
+	url = https://github.com/hats-protocol/hats-module
 
 
