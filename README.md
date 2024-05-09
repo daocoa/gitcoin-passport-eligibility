@@ -2,7 +2,7 @@
 
 Gitcoin Passport Eligibility is an eligibility module for [Hats Protocol](https://github.com/hats-protocol/hats-protocol). The module defines eligibility for wearers based on their Gitcoin Passport Score, and whether it passes a certain threshold.
 
-# Details
+## Details
 
 GitcoinPassportEligiblity inherits from the [HatsEligibilityModule](https://github.com/Hats-Protocol/hats-module#hatseligibilitymodule) base contract from which it receives two major properties:
 
@@ -24,17 +24,17 @@ Note that every time a hat with this module signs anything, this module will be 
 ![image](https://github.com/daocoa/gitcoin-passport-eligibility/assets/3211305/faf155da-424b-44d2-86ed-b62148b40af2)
 -->
 
-# Setup
+### Setup
 
 A GitcoinPassportEligiblity requires several parameters to be set at deployment, passed to the `HatsModuleFactory.createHatsModule()` function in various ways.
 
-## Immutable values
+#### Immutable values
 
 - `hatId`: The id of the hat to which this instance will be attached as an eligibility module, passed as itself
 - `gitcoinPassportDecoder`: The smart contract instance of a Decoder that creates a bit map of stamp providers, which allows us to score Passports fully onchain.
 - `scoreCriterion`: The threshold used to consider if an address belongs to a human. If set to 0, then the module will use Gitcoin Passport's standard criterion for the threshold. If set to a value other than 0, then the module will use the assigned value for the threshold.
 
-# Development
+## Development
 
 This repo uses Foundry for development and testing. To get started:
 
@@ -44,7 +44,7 @@ This repo uses Foundry for development and testing. To get started:
 4. To compile the contracts, run `forge build`
 5. To test, run `forge test`
 
-## IR-Optimized Builds
+### IR-Optimized Builds
 
 This repo also supports contracts compiled via IR. Since compiling all contracts via IR would slow down testing workflows, we only want to do this for our target contract(s), not anything in this `test` or `script` stack. We accomplish this by pre-compiled the target contract(s) and then loading the pre-compiled artifacts in the test suite.
 
@@ -54,19 +54,19 @@ Next, ensure that tests are using the `DeployOptimized` script, and run `forge t
 
 See the wonderful [Seaport repo](https://github.com/ProjectOpenSea/seaport/blob/main/README.md#foundry-tests) for more details and options for this approach.
 
-## Steps To Deploy
+### Steps To Deploy
 
-### A. Simulate the deployments locally
+#### A. Simulate the deployments locally
 
 `forge script script/DeployImplementation.s.sol -f mainnet`
 `forge script script/DeployInstance.s.sol -f mainnet`
 
-### B. Deploy to real network and verify on etherscan
+#### B. Deploy to real network and verify on etherscan
 
 `forge script script/DeployImplementation.s.sol mainnet --broadcast --verify`
 `forge script script/DeployInstance.s.sol mainnet --broadcast --verify`
 
-### C. Fix verification issues (replace values in curly braces with the actual values)
+#### C. Fix verification issues (replace values in curly braces with the actual values)
 
 ```
 forge verify-contract --chain-id 1 --num-of-optimizations 1000000 --watch --constructor-args $(cast abi-encode \
@@ -75,11 +75,10 @@ forge verify-contract --chain-id 1 --num-of-optimizations 1000000 --watch --cons
  src/{Counter}.sol:{Counter} --etherscan-api-key $ETHERSCAN_KEY
 ```
 
-
-# notes
+## notes
 
 Forked from the [Hats Module Template](https://github.com/Hats-Protocol/hats-module-template).
 
-# License
+## License
 
 MIT
