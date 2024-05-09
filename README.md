@@ -1,8 +1,13 @@
 # Gitcoin Passport Eligibility
 
-An Hats Protocol eligibility module for Gitcoin Passport that sets a target hat's eligibility based on a given Passport score criterion.
+Gitcoin Passport Eligibility is an eligibility module for [Hats Protocol](https://github.com/hats-protocol/hats-protocol). The module defines eligibility for wearers based on their Gitcoin Passport Score, and whether it passes a certain threshold.
 
-## Overview and Usage
+# Details
+
+GitcoinPassportEligiblity inherits from the [HatsEligibilityModule](https://github.com/Hats-Protocol/hats-module#hatseligibilitymodule) base contract from which it receives two major properties:
+
+- It can be cheaply deployed via the minimal proxy factory[HatsModuleFactory](https://github.com/Hats-Protocol/hats-module#hatsmodulefactory)
+- It implements the interface [IHatsEligibility](https://github.com/Hats-Protocol/hats-protocol/blob/main/src/Interfaces/IHatsEligibility.sol)
 
 This eligibility module relies on the parameters and logic internal to the [GitcoinPassportDecoder.sol](https://github.com/gitcoinco/eas-proxy/blob/056a246b8c68ccdf1d16d033f1c0cd1a807cea4a/contracts/GitcoinPassportDecoder.sol) contract to determine the eligibility of a target hat.
 
@@ -18,6 +23,16 @@ This module is simple, and relies on the protocols it bridges for its efficacy. 
 
 ![image](https://github.com/daocoa/gitcoin-passport-eligibility/assets/3211305/faf155da-424b-44d2-86ed-b62148b40af2)
 
+# Setup
+
+A GitcoinPassportEligiblity requires several parameters to be set at deployment, passed to the `HatsModuleFactory.createHatsModule()` function in various ways.
+
+## Immutable values
+
+- `hatId`: The id of the hat to which this instance will be attached as an eligibility module, passed as itself
+- `gitcoinPassportDecoder`: The smart contract instance of a Decoder that creates a bit map of stamp providers, which allows us to score Passports fully onchain.
+- `scoreCriterion`: The threshold used to consider if an address belongs to a human. If set to 0, then the module will use Gitcoin Passport's standard criterion for the threshold. If set to a value other than 0, then the module will use the assigned value for the threshold.
+
 ## Development
 
 This repo uses Foundry for development and testing. To get started:
@@ -27,6 +42,22 @@ This repo uses Foundry for development and testing. To get started:
 3. To install dependencies, run `forge install`
 4. To compile the contracts, run `forge build`
 5. To test, run `forge test`
+
+
+
+### IR-Optimized Builds
+
+This repo also supports contracts compiled via IR. Since compiling all contracts via IR would slow down testing workflows, we only want to do this for our target contract(s), not anything in this `test` or `script` stack. We accomplish this by pre-compiled the target contract(s) and then loading the pre-compiled artifacts in the test suite.
+
+First, we compile the target contract(s) via IR by running`FOUNDRY_PROFILE=optimized forge build` (ensuring that FOUNDRY_PROFILE is not in our .env file)
+
+Next, ensure that tests are using the `DeployOptimized` script, and run `forge test` as normal.
+
+See the wonderful [Seaport repo](https://github.com/ProjectOpenSea/seaport/blob/main/README.md#foundry-tests) for more details and options for this approach.
+
+### notes
+
+Forked from the [Hats Module Template](https://github.com/Hats-Protocol/hats-module-template).
 
 ## Steps To Deploy
 
@@ -48,20 +79,6 @@ forge verify-contract --chain-id 1 --num-of-optimizations 1000000 --watch --cons
  --compiler-version v0.8.19 {deploymentAddress} \
  src/{Counter}.sol:{Counter} --etherscan-api-key $ETHERSCAN_KEY
 ```
-
-### IR-Optimized Builds
-
-This repo also supports contracts compiled via IR. Since compiling all contracts via IR would slow down testing workflows, we only want to do this for our target contract(s), not anything in this `test` or `script` stack. We accomplish this by pre-compiled the target contract(s) and then loading the pre-compiled artifacts in the test suite.
-
-First, we compile the target contract(s) via IR by running`FOUNDRY_PROFILE=optimized forge build` (ensuring that FOUNDRY_PROFILE is not in our .env file)
-
-Next, ensure that tests are using the `DeployOptimized` script, and run `forge test` as normal.
-
-See the wonderful [Seaport repo](https://github.com/ProjectOpenSea/seaport/blob/main/README.md#foundry-tests) for more details and options for this approach.
-
-### notes
-
-Forked from the [Hats Module Template](https://github.com/Hats-Protocol/hats-module-template).
 
 ## License
 
