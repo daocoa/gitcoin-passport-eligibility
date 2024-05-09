@@ -41,6 +41,8 @@ jobs:
         id: build
 
       - name: Run tests
+        env:
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
         run: yarn test -vvv
 
       - name: Run nextjs lint
