@@ -17,11 +17,12 @@ The eligibility of the target hat is dynamically determined by the status of the
 
 Note that every time a hat with this module signs anything, this module will be called. This means that the passport score is realtime, but a hat with this module will pay more to sign a transaction than a hat without this module.
 
-This module is simple, and relies on the protocols it bridges for its efficacy. The only configuration outside of the default is the score criterion. If the score criterion is 0, we default to Gitcoin Passport's standard criterion.
+<!-- This module is simple, and relies on the protocols it bridges for its efficacy. The only configuration outside of the default is the score criterion. If the score criterion is 0, we default to Gitcoin Passport's standard criterion. 
 
 ![image](https://github.com/daocoa/gitcoin-passport-eligibility/assets/3211305/e6753cc5-c819-412d-9687-9fc5a706e139)
 
 ![image](https://github.com/daocoa/gitcoin-passport-eligibility/assets/3211305/faf155da-424b-44d2-86ed-b62148b40af2)
+-->
 
 # Setup
 
