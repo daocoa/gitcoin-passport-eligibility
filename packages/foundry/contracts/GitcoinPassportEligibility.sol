@@ -61,7 +61,7 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
                     HATS ELIGIBILITY FUNCTION
   //////////////////////////////////////////////////////////////*/
 
-  // @audit Parameter does not follow proper naming convention.
+  // @audit parameter does not follow proper naming convention.
   // @audit Function visbility can be altered to external.
   /// @inheritdoc IHatsEligibility
   function getWearerStatus(address _wearer, uint256 /*_hatId*/ )
@@ -82,6 +82,8 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
                           VIEW FUNCTIONS
   //////////////////////////////////////////////////////////////*/
 
+  // @audit parameter does not follow proper naming convention.
+  // @audit view function calls not optimized
   /**
    * @notice Assesses whether a user is human based on their Gitcoin Passport score
    * @dev Returns
