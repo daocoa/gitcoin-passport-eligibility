@@ -188,13 +188,13 @@ contract Deployment is ModuleTest {
 
     function test_gitcoinPassportDecoder() public view {
         assertEq(
-            address(instance.GITCOIN_PASSPORT_DECODER()),
+            address(instance.gitcoinPassportDecoder()),
             address(GITCOIN_PASSPORT_DECODER)
         );
     }
 
     function test_scoreCriterion() public view {
-        assertEq(instance.SCORE_CRITERION(), scoreCriterion * 10 ** DECIMALS);
+        assertEq(instance.scoreCriterion(), scoreCriterion * 10 ** DECIMALS);
     }
 }
 

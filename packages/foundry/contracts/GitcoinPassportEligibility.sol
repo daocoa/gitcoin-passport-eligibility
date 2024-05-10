@@ -28,20 +28,18 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
    * 0       | IMPLEMENTATION           | address         | 20     | HatsModule    |
    * 20      | HATS                     | address         | 20     | HatsModule    |
    * 40      | hatId                    | uint256         | 32     | HatsModule    |
-   * 72      | GITCOIN_PASSPORT_DECODER | address         | 20     | this          |
-   * 92      | SCORE_CRITERION          | uint256         | 32     | this          |
+   * 72      | gitcoinPassportDecoder   | address         | 20     | this          |
+   * 92      | scoreCriterion           | uint256         | 32     | this          |
    * ------------------------------------------------------------------------------+
    */
 
-  // @audit This functon does not follow proper naming conventions.
   /// @notice The Gitcoin Resolver contract
-  function GITCOIN_PASSPORT_DECODER() public pure returns (IGitcoinPassportDecoder) {
+  function gitcoinPassportDecoder() public pure returns (IGitcoinPassportDecoder) {
     return IGitcoinPassportDecoder(_getArgAddress(72));
   }
 
-  // @audit This functon does not follow proper naming conventions.
   /// @notice The minimum Gitcoin Passport score required to be eligible for a hat, with 4 decimal places
-  function SCORE_CRITERION() public pure returns (uint256) {
+  function scoreCriterion() public pure returns (uint256) {
     return _getArgUint256(92) * 10 ** 4;
   }
 
@@ -61,10 +59,8 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
                     HATS ELIGIBILITY FUNCTION
   //////////////////////////////////////////////////////////////*/
 
-  // @audit parameter does not follow proper naming convention.
-  // @audit Function visbility can be altered to external.
   /// @inheritdoc IHatsEligibility
-  function getWearerStatus(address _wearer, uint256 /*_hatId*/ )
+  function getWearerStatus(address wearer, uint256 /*_hatId*/ )
     public
     view
     virtual
@@ -72,7 +68,7 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
     returns (bool eligible, bool standing)
   {
     // eligible if the wearer has a score greater than or equal to the score criterion
-    eligible = isHuman(_wearer);
+    eligible = isHuman(wearer);
 
     // this module always returns true for standing
     standing = true;
@@ -82,33 +78,33 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
                           VIEW FUNCTIONS
   //////////////////////////////////////////////////////////////*/
 
-  // @audit parameter does not follow proper naming convention.
-  // @audit view function calls not optimized
   /**
    * @notice Assesses whether a user is human based on their Gitcoin Passport score
    * @dev Returns
    * - A score attestation does not exist for the user
    * - The user's score attestation has been revoked
    * - The user's score attestation has expired
-   * @param _wearer The address of the user to get the score for
+   * @param wearer The address of the user to get the score for
    * @return Whether the user is human in compliance with the score criterion
    */
-  function isHuman(address _wearer) public view returns (bool) {
+  function isHuman(address wearer) public view returns (bool) {
+    uint256 _scoreCriterion = scoreCriterion();
+    IGitcoinPassportDecoder _gitcoinPassportDecoder = gitcoinPassportDecoder();
     // we use a try/catch to handle cases where the user...
     //    - doesn't have a score attestation,
     //    - the attestation has been revoked, or
     //    - the attestation has expired
-    if (SCORE_CRITERION() == 0) {
+    if (_scoreCriterion == 0) {
       // if our score criterion is 0, we default to Gitcoin Passport's standard criterion
-      try GITCOIN_PASSPORT_DECODER().isHuman(_wearer) returns (bool result) {
+      try _gitcoinPassportDecoder.isHuman(wearer) returns (bool result) {
         return result;
       } catch {
         return false;
       }
     } else {
       // otherwise, we use our score criterion
-      try GITCOIN_PASSPORT_DECODER().getScore(_wearer) returns (uint256 score) {
-        return score >= SCORE_CRITERION();
+      try _gitcoinPassportDecoder.getScore(wearer) returns (uint256 score) {
+        return score >= _scoreCriterion;
       } catch {
         return false;
       }
