@@ -1,4 +1,4 @@
-### [S-#] `GitcoinPassportEligibility::getWearerStatus` does not have the most efficient visibility type.
+### [G-1] `GitcoinPassportEligibility::getWearerStatus` does not have the most efficient visibility type.
 
 **Description:** `GitcoinPassportEligibility::getWearerStatus` is not called within `GitcoinPassportEligibility`, however its visibility is `public`.
 

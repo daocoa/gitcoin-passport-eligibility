@@ -1,4 +1,4 @@
-### [S-#] GitcoinPassportEligibility::getWearerStatus' first parameter, _wearer, does not follow the mixedCase naming convention, resulting in potential confusion from code reviewers
+### [I-3] GitcoinPassportEligibility::getWearerStatus' first parameter, _wearer, does not follow the mixedCase naming convention, resulting in potential confusion from code reviewers
 
 **Description:** The underscore naming convention is an outdated practice for function parameters. 
 

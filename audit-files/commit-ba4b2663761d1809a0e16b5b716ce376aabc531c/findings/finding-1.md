@@ -1,4 +1,4 @@
-### [S-#] GitcoinPassportEligibility::GITCOIN_PASSPORT_DECODER function does not follow the mixedCase naming convention, resulting in potential confusion from code reviewers
+### [I-1] GitcoinPassportEligibility::GITCOIN_PASSPORT_DECODER function does not follow the mixedCase naming convention, resulting in potential confusion from code reviewers
 
 **Description:** All caps naming convention is reserved for constant variables. Although `GitcoinPassportEligibility::GITCOIN_PASSPORT_DECODER` returns an immutable constant value, it is still a function. Thus it should follow the mixedCase naming convention.
 

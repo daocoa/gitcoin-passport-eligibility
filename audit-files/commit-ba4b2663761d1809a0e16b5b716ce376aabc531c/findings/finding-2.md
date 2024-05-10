@@ -1,4 +1,4 @@
-### [S-#] GitcoinPassportEligibility::SCORE_CRITERION function does not follow the mixedCase naming convention, resulting in potential confusion from code reviewers
+### [I-2] GitcoinPassportEligibility::SCORE_CRITERION function does not follow the mixedCase naming convention, resulting in potential confusion from code reviewers
 
 **Description:** All caps naming convention is reserved for constant variables. Although `GitcoinPassportEligibility::SCORE_CRITERION` returns an immutable constant value, it is still a function. Thus it should follow the mixedCase naming convention.
 
