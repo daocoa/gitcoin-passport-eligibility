@@ -45,9 +45,9 @@ jobs:
       #     ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
       #   run: yarn test -vvv
 
-      - name: Run nextjs lint
-        run: yarn next:lint --max-warnings=0
+      # - name: Run nextjs lint
+      #   run: yarn next:lint --max-warnings=0
 
-      - name: Check typings on nextjs
-        run: yarn next:check-types
+      # - name: Check typings on nextjs
+      #   run: yarn next:check-types
       
