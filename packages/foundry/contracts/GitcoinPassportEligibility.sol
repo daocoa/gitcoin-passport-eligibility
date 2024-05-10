@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 // import { console2 } from "forge-std/Test.sol"; // comment out before deploy
@@ -33,11 +33,13 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
    * ------------------------------------------------------------------------------+
    */
 
+  // @audit This functon does not follow proper naming conventions.
   /// @notice The Gitcoin Resolver contract
   function GITCOIN_PASSPORT_DECODER() public pure returns (IGitcoinPassportDecoder) {
     return IGitcoinPassportDecoder(_getArgAddress(72));
   }
 
+  // @audit This functon does not follow proper naming conventions.
   /// @notice The minimum Gitcoin Passport score required to be eligible for a hat, with 4 decimal places
   function SCORE_CRITERION() public pure returns (uint256) {
     return _getArgUint256(92) * 10 ** 4;
@@ -59,6 +61,8 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
                     HATS ELIGIBILITY FUNCTION
   //////////////////////////////////////////////////////////////*/
 
+  // @audit Parameter does not follow proper naming convention.
+  // @audit Function visbility can be altered to external.
   /// @inheritdoc IHatsEligibility
   function getWearerStatus(address _wearer, uint256 /*_hatId*/ )
     public
