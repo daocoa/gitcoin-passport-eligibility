@@ -91,9 +91,9 @@ contract GitcoinPassportEligibility is HatsEligibilityModule {
     uint256 _scoreCriterion = scoreCriterion();
     IGitcoinPassportDecoder _gitcoinPassportDecoder = gitcoinPassportDecoder();
     // we use a try/catch to handle cases where the user...
+    //    - the attestation has expired
     //    - doesn't have a score attestation,
     //    - the attestation has been revoked, or
-    //    - the attestation has expired
     if (_scoreCriterion == 0) {
       // if our score criterion is 0, we default to Gitcoin Passport's standard criterion
       try _gitcoinPassportDecoder.isHuman(wearer) returns (bool result) {

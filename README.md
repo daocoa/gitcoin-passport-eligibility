@@ -17,7 +17,7 @@ The eligibility of the target hat is dynamically determined by the status of the
 
 Note that every time a hat with this module signs anything, this module will be called. This means that the passport score is realtime, but a hat with this module will pay more to sign a transaction than a hat without this module.
 
-<!-- This module is simple, and relies on the protocols it bridges for its efficacy. The only configuration outside of the default is the score criterion. If the score criterion is 0, we default to Gitcoin Passport's standard criterion. 
+<!-- This module is simple, and relies on the protocols it bridges for its efficacy. The only configuration outside of the default is the score criterion. If the score criterion is 0, we default to Gitcoin Passport's standard criterion.
 
 ![image](https://github.com/daocoa/gitcoin-passport-eligibility/assets/3211305/e6753cc5-c819-412d-9687-9fc5a706e139)
 
@@ -69,6 +69,16 @@ See the wonderful [Seaport repo](https://github.com/ProjectOpenSea/seaport/blob/
 `yarn deploy --network ${network_name}`
 
 `yarn verify --network ${network_name}`
+
+<!--- DOESN'T WORK WITH SE2. Reccomended to use `yarn deploy:verify --network ${network_name}>
+<!-- #### C. Fix verification issues (replace values in curly braces with the actual values)
+
+```
+forge verify-contract --chain-id 1 --num-of-optimizations 1000000 --watch --constructor-args $(cast abi-encode \
+ "constructor({argType1, argType2, argeTypeN})" "{arg1}" "{arg2}" "{argN}" ) \
+ --compiler-version v0.8.19 {deploymentAddress} \
+ src/{Counter}.sol:{Counter} --etherscan-api-key $ETHERSCAN_KEY
+``` -->
 
 ## notes
 
