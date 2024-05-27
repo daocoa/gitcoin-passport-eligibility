@@ -98,7 +98,8 @@ contract GitcoinPassportDecoder is
     _unpause();
   }
 
-  function _authorizeUpgrade(address) internal override onlyOwner {}
+  function _authorizeUpgrade(address) internal override onlyOwner {
+  }
 
   /**
    * @dev Gets providers by version.

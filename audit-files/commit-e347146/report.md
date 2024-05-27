@@ -43,6 +43,7 @@ Prepared by: [Jacob Homanics](https://twitter.com/homanics)
 - [Findings](#findings)
 - [High](#high)
 - [Medium](#medium)
+- [Low](#low)
 - [Informational](#informational)
 
 # Protocol Summary
@@ -97,10 +98,10 @@ The tools used were VSCode, Slither, and Aderyn.
 | ------------- | ---------------------- |
 | High          | 1                      |
 | Medium        | 1                      |
-| Low           | 0                      |
+| Low           | 4                      |
 | Informational | 6                      |
 | Gas           | 0                      |
-| Total         | 8                      |
+| Total         | 12                      |
 
 # Findings
 
@@ -169,6 +170,196 @@ passportMemoryArray[hashIndex] = credential;
 
 hashIndex += 1;
 ```
+
+## Low
+
+### [L-1] Centralization Risk for trusted owners
+
+**Description:** Contracts have owners with privileged rights to perform admin tasks and need to be trusted to not perform malicious updates or drain funds.
+
+**Impact:** <details><summary>11 Found Instances</summary>
+
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 93](contracts/GitcoinPassportDecoder.sol#L93)
+
+	```solidity
+	  function pause() public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 97](contracts/GitcoinPassportDecoder.sol#L97)
+
+	```solidity
+	  function unpause() public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 101](contracts/GitcoinPassportDecoder.sol#L101)
+
+	```solidity
+	  function _authorizeUpgrade(address) internal override onlyOwner {}
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 114](contracts/GitcoinPassportDecoder.sol#L114)
+
+	```solidity
+	  function setEASAddress(address _easContractAddress) external onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 126](contracts/GitcoinPassportDecoder.sol#L126)
+
+	```solidity
+	  function setGitcoinResolver(address _gitcoinResolver) external onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 138](contracts/GitcoinPassportDecoder.sol#L138)
+
+	```solidity
+	  function setPassportSchemaUID(bytes32 _schemaUID) public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 150](contracts/GitcoinPassportDecoder.sol#L150)
+
+	```solidity
+	  function setScoreSchemaUID(bytes32 _schemaUID) public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 162](contracts/GitcoinPassportDecoder.sol#L162)
+
+	```solidity
+	  function setMaxScoreAge(uint64 _maxScoreAge) public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 176](contracts/GitcoinPassportDecoder.sol#L176)
+
+	```solidity
+	  function setThreshold(uint256 _threshold) public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 190](contracts/GitcoinPassportDecoder.sol#L190)
+
+	```solidity
+	  function addProviders(string[] memory providers) external onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 231](contracts/GitcoinPassportDecoder.sol#L231)
+
+	```solidity
+	  function createNewVersion(string[] memory providers) external onlyOwner {
+	```
+</details>
+
+**Proof of Concept:** Implement AccessControl functionality to define a DEFAULT_ADMIN_ROLE and switch the appropriate functions to only being able to be called by the admin. While leaving any fund management to the owner.
+
+### [L-2]: `public` functions not used internally could be marked `external`
+
+**Description:** Instead of marking a function as `public`, consider marking it as `external` if it is not used internally. This will save on gas optimizations.
+
+**Impact:** <details><summary>10 Found Instances</summary>
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 86](contracts/GitcoinPassportDecoder.sol#L86)
+
+	```solidity
+	  function initialize() public initializer {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 93](contracts/GitcoinPassportDecoder.sol#L93)
+
+	```solidity
+	  function pause() public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 97](contracts/GitcoinPassportDecoder.sol#L97)
+
+	```solidity
+	  function unpause() public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 106](contracts/GitcoinPassportDecoder.sol#L106)
+
+	```solidity
+	  function getProviders(uint32 version) public view returns (string[] memory) {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 138](contracts/GitcoinPassportDecoder.sol#L138)
+
+	```solidity
+	  function setPassportSchemaUID(bytes32 _schemaUID) public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 150](contracts/GitcoinPassportDecoder.sol#L150)
+
+	```solidity
+	  function setScoreSchemaUID(bytes32 _schemaUID) public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 162](contracts/GitcoinPassportDecoder.sol#L162)
+
+	```solidity
+	  function setMaxScoreAge(uint64 _maxScoreAge) public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 176](contracts/GitcoinPassportDecoder.sol#L176)
+
+	```solidity
+	  function setThreshold(uint256 _threshold) public onlyOwner {
+	```
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 463](contracts/GitcoinPassportDecoder.sol#L463)
+
+	```solidity
+	  function isHuman(address user) public view returns (bool) {
+	```
+
+- Found in contracts/GitcoinPassportEligibility.sol [Line: 63](contracts/GitcoinPassportEligibility.sol#L63)
+
+	```solidity
+	  function getWearerStatus(address wearer, uint256 /*_hatId*/ )
+	```
+
+</details>
+
+**Proof of Concept:** Example 1...Change `function initialize() public initializer` to `function initialize() external initializer`. 
+
+### [L-3]: Empty Block
+
+**Description:** There is an unused function which can be removed.
+
+
+
+**Impact:** <details><summary>1 Found Instances</summary>
+
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 101](contracts/GitcoinPassportDecoder.sol#L101)
+
+	```solidity
+	  function _authorizeUpgrade(address) internal override onlyOwner {}
+	```
+
+</details>
+
+**Proof of Concept:** Add functionality to the code block.
+
+
+### [L-4]: Unused Custom Error
+
+**Description:** There is an unused custom error that is taking up space.
+
+
+
+**Impact:**
+
+<details><summary>1 Found Instances</summary>
+
+
+- Found in contracts/GitcoinPassportDecoder.sol [Line: 75](contracts/GitcoinPassportDecoder.sol#L75)
+
+	```solidity
+	  error ScoreDoesNotMeetThreshold(uint256 score);
+	```
+
+</details>
+
+**Proof of Concept:** It is recommended that the definition be removed when custom error is unused.
+
 
 ## Informational
 
