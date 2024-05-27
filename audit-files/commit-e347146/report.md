@@ -14,7 +14,7 @@ header-includes:
 \includegraphics[width=0.5\textwidth]{logo.pdf}
 \end{figure}
 \vspace{2cm}
-{\Huge\bfseries Gitcoin Passport Eligibity Module Report\par}
+{\Huge\bfseries Gitcoin Passport Deocder Report\par}
 \vspace{1cm}
 {\Large Version 1.0\par}
 \vspace{2cm}
@@ -48,7 +48,7 @@ Prepared by: [Jacob Homanics](https://twitter.com/homanics)
 
 # Protocol Summary
 
-GitcoinPassportDecoder is used to retrieve an addresses' passport score entirely onchain.
+GitcoinPassportDecoder is used to retrieve an addresses' Gitcoin Passport score onchain. 
 
 # Disclaimer
 
@@ -88,7 +88,7 @@ N/A
 
 # Executive Summary
 
-The codebase is small and served a single purpose, resulting in no major or critical risks. However we found several Informational or Gas vulnerabilities.
+The file contained several noticeable vulnerabilities, however within the given context they do not seem to a major issue. However the vulnerabilities should be considered and fixed for future releases of the code.
 
 The tools used were VSCode, Slither, and Aderyn.
 
