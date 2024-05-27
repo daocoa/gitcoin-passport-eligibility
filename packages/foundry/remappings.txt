@@ -9,3 +9,5 @@ solady/=lib/hats-module/lib/solady/src/
 solbase/=lib/hats-module/lib/hats-protocol/lib/solbase/src/
 solmate/=lib/hats-module/lib/solady/lib/solmate/src/
 utils/=lib/hats-module/lib/hats-protocol/lib/utils/
+@ethereum-attestation-service/eas-contracts/=lib/eas-contracts/contracts
+@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts
